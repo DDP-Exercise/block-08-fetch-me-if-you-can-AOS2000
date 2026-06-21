@@ -1,5 +1,6 @@
 "use strict";
-
+import { Post } from "./class.post.js";
+import { User } from "./class.user.js";
 /*******************************************************
  *    Asynchronotrigger - 100p
  *
@@ -27,3 +28,105 @@
  *    I believe in...
  *    Sadiq - 2026-06-09
  *  *******************************************************/
+const usersArray = [];
+
+async function fetchData(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP-Fehler! Status: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error("Fehler beim Laden der Daten:", error);
+        return null;
+    }
+}
+
+async function initApp() {
+    // Daten parallel via API holen
+    const rawUsers = await fetchData("https://jsonplaceholder.typicode.com/users");
+    const rawPosts = await fetchData("https://jsonplaceholder.typicode.com/posts");
+
+    if (!rawUsers || !rawPosts) {
+        document.getElementById("app").innerHTML = "<p>Fehler beim Laden der API-Daten.</p>";
+        return;
+    }
+
+    const postsByUserId = {};
+    rawPosts.forEach(p => {
+        const postInstance = new Post(p.id, p.title, p.body);
+        if (!postsByUserId[p.userId]) {
+            postsByUserId[p.userId] = [];
+        }
+        postsByUserId[p.userId].push(postInstance);
+    });
+
+    const appContainer = document.getElementById("app");
+    let htmlOutput = "";
+
+    rawUsers.forEach(u => {
+        const userInstance = new User(u.id, u.name, u.username, u.email, u.website);
+
+        userInstance.posts = postsByUserId[u.id] || [];
+        usersArray.push(userInstance);
+
+        // HTML aufbauen
+        htmlOutput += userInstance.render();
+    });
+
+    appContainer.innerHTML = htmlOutput;
+
+    // Events binden
+    setupEvents(appContainer);
+}
+
+function setupEvents(container) {
+    container.addEventListener("click", async (event) => {
+        const target = event.target;
+
+        // 1. Klick auf den User-Header (Auf-/Zuklappen)
+        const userHeader = target.closest(".user-header");
+        if (userHeader) {
+            // Verhindert das Zuklappen, wenn man nur auf die Links klickt
+            if (target.tagName === 'A') return;
+
+            const userCard = userHeader.closest(".user-card");
+            const userId = userCard.dataset.userId;
+            const postsContainer = document.getElementById(`user-posts-${userId}`);
+
+            postsContainer.classList.toggle("hidden");
+            return;
+        }
+
+        // 2. Klick auf den "Kommentare laden"-Button
+        if (target.classList.contains("load-comments-btn")) {
+            const postId = parseInt(target.dataset.postId);
+            const commentsContainer = document.getElementById(`comments-${postId}`);
+
+            let foundPost = null;
+            for (const user of usersArray) {
+                foundPost = user.posts.find(p => p.id === postId);
+                if (foundPost) break;
+            }
+
+            if (foundPost) {
+                if (foundPost.comments.length === 0) {
+                    target.innerText = "Lade...";
+                    const commentsData = await fetchData(`https://jsonplaceholder.typicode.com/posts/${postId}/comments`);
+
+                    if (commentsData) {
+                        foundPost.comments = commentsData;
+                    }
+                }
+                commentsContainer.innerHTML = foundPost.renderComments();
+                commentsContainer.classList.toggle("hidden");
+
+                target.innerText = commentsContainer.classList.contains("hidden")
+                    ? "Kommentare anzeigen"
+                    : "Kommentare ausblenden";
+            }
+        }
+    });
+}
+
+// App direkt starten
+initApp();
