@@ -69,13 +69,11 @@ async function initApp() {
         userInstance.posts = postsByUserId[u.id] || [];
         usersArray.push(userInstance);
 
-        // HTML aufbauen
         htmlOutput += userInstance.render();
     });
 
     appContainer.innerHTML = htmlOutput;
 
-    // Events binden
     setupEvents(appContainer);
 }
 
@@ -83,7 +81,6 @@ function setupEvents(container) {
     container.addEventListener("click", async (event) => {
         const target = event.target;
 
-        // 1. Klick auf den User-Header (Auf-/Zuklappen)
         const userHeader = target.closest(".user-header");
         if (userHeader) {
             // Verhindert das Zuklappen, wenn man nur auf die Links klickt
@@ -97,7 +94,6 @@ function setupEvents(container) {
             return;
         }
 
-        // 2. Klick auf den "Kommentare laden"-Button
         if (target.classList.contains("load-comments-btn")) {
             const postId = parseInt(target.dataset.postId);
             const commentsContainer = document.getElementById(`comments-${postId}`);
@@ -128,5 +124,4 @@ function setupEvents(container) {
     });
 }
 
-// App direkt starten
 initApp();
