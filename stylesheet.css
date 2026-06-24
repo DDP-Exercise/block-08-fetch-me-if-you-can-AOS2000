@@ -1,0 +1,53 @@
+.hidden {
+    display: none !important;
+}
+
+.user-card {
+    border: 1px solid #000000;
+    background-color: #edc709;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 8px;
+    font-family: sans-serif;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.user-header {
+    cursor: pointer;
+    background-color: #ff9900;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.user-header:hover {
+    background-color: #ffbf54;
+}
+
+.post-card {
+    border-left: 4px solid #173a06;
+    background-color: #4ca31f;
+    margin: 15px 0;
+    padding: 10px 15px;
+    border-radius: 0 5px 5px 0;
+}
+
+.load-comments-btn {
+    background-color: #173a06;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.load-comments-btn:hover {
+    background-color: #208e20;
+}
+
+.comment {
+    background-color: #208e20;
+    margin: 8px 0;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
